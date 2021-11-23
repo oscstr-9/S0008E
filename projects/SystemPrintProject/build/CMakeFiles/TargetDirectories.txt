@@ -1,3 +1,0 @@
-/home/ogge/Repos/S0017D/projects/SystemPrintProject/build/CMakeFiles/rebuild_cache.dir
-/home/ogge/Repos/S0017D/projects/SystemPrintProject/build/CMakeFiles/edit_cache.dir
-/home/ogge/Repos/S0017D/projects/SystemPrintProject/build/CMakeFiles/app.dir

@@ -1,7 +1,6 @@
 #include "config.h"
 #include "Lighting.h"
 #include "ShaderResource.h"
-#include <vector>
 
 Lighting::Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn)
 {
@@ -25,16 +24,6 @@ void Lighting::setPos(VectorMath3 posIn) {
 void Lighting::setLightColor(VectorMath3 colorIn) {
 	color = colorIn;
 }
-// Sets all values required for lighting to work in the shader
-void Lighting::bindLight(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos) {
-
-	shader->setVec3(color, "lightColor");
-	shader->setVec3(pos, "lightPos");
-	shader->setFloat(intensity, "intensity");
-
-	shader->setVec3(cameraPos, "viewPos");
-	shader->setFloat(1, "specIntensity");
-}
 VectorMath3 Lighting::getColor(){
 	return color;
 }
@@ -44,3 +33,32 @@ VectorMath3 Lighting::getPos(){
 float Lighting::getIntensity(){
 	return intensity;
 }
+
+namespace Light{
+	// Sets all values required for lighting to work in the shader
+void bindLight(std::shared_ptr<ShaderResource> shader, Lighting light, VectorMath3 cameraPos) {
+
+	shader->setVec3(light.getColor(), "lightColor");
+	shader->setVec3(light.getPos(), "lightPos");
+	shader->setFloat(light.getIntensity(), "intensity");
+
+	shader->setVec3(cameraPos, "viewPos");
+	shader->setFloat(1, "specIntensity");
+}
+
+void bindLights(std::shared_ptr<ShaderResource> shader, std::vector<Lighting> lights){
+
+	// Max of 16 lights atm
+	VectorMath3 lightColor[16];
+	VectorMath3 lightPos[16];
+	float intensity[16];
+	for (int i = 0; i < lights.size(); i++)
+	{
+		lightColor[i] = lights[i].getColor();
+		lightPos[i] = lights[i].getPos();
+		intensity[i] = lights[i].getIntensity();
+	}
+
+	shader->setLights(lightColor, lightPos, intensity, lights.size());
+}
+};

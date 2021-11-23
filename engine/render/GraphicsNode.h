@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MESHRESOURCE.h"
+#include "MeshResource.h"
 #include "TextureResource.h"
 #include "ShaderResource.h"
 #include <memory>

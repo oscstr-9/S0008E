@@ -26,6 +26,19 @@ MatrixMath ScreenCamera::GetProjViewMatrix() {
 VectorMath3 ScreenCamera::GetPosition() {
 	return pos;
 }
+VectorMath3 ScreenCamera::GetVectorX(){
+	return VectorMath3(GetProjViewMatrix()[0][0],GetProjViewMatrix()[0][1],GetProjViewMatrix()[0][2]);
+}
+
+VectorMath3 ScreenCamera::GetVectorY(){
+	return VectorMath3(GetProjViewMatrix()[0][1],GetProjViewMatrix()[1][1],GetProjViewMatrix()[2][1]);
+
+}
+
+VectorMath3 ScreenCamera::GetVectorZ(){
+	return VectorMath3(GetProjViewMatrix()[0][2],GetProjViewMatrix()[1][2],GetProjViewMatrix()[2][2]);
+
+}
 
 ScreenCamera::~ScreenCamera()
 {

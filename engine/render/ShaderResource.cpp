@@ -14,12 +14,12 @@ ShaderResource::~ShaderResource()
     glDeleteProgram(program);
 }
 
-std::string ReadShader(const char* filePath) {
+std::string ReadShader(std::string fileName) {
     std::string content;
-    std::ifstream fileStream(filePath, std::ios::in);
+    std::ifstream fileStream("engine/shaders/" + fileName, std::ios::in);
 
     if (!fileStream.is_open()) {
-        std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+        std::cerr << "Could not read file " << fileName << ". File does not exist." << std::endl;
         return "";
     }
 
@@ -33,7 +33,7 @@ std::string ReadShader(const char* filePath) {
     return content;
 }
 
-GLuint ShaderResource::LoadShader(const char* vertex_path, const char* fragment_path) {
+GLuint ShaderResource::LoadShader(std::string vertex_path, std::string fragment_path) {
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glActiveTexture(GL_TEXTURE0);

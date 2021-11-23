@@ -17,4 +17,7 @@ public:
 	void SetRotMat(MatrixMath rotMatIn);
 	MatrixMath GetProjViewMatrix();
 	VectorMath3 GetPosition();
+	VectorMath3 GetVectorX();
+	VectorMath3 GetVectorY();
+	VectorMath3 GetVectorZ();
 };
