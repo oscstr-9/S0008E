@@ -78,14 +78,14 @@ void Render(MatrixMath projView){
     lineBuffer.numOfVert = 0;
 }
 
-void CreateGrid(int size){
-    DrawLine(VectorMath3(-size, 0, -size), VectorMath3(size, 0,-size), VectorMath4(0,0.3,0.3,1));
-    DrawLine(VectorMath3(-size, 0, -size), VectorMath3(-size, 0, size), VectorMath4(0,0.3,0.3,1));
+void CreateGrid(int size, VectorMath4 color){
+    DrawLine(VectorMath3(-size, 0, -size), VectorMath3(size, 0,-size), color);
+    DrawLine(VectorMath3(-size, 0, -size), VectorMath3(-size, 0, size), color);
 
     for (int i = 0; i < size; i++)
     {
-        DrawLine(VectorMath3(size, 0, size-i*2), VectorMath3(-size, 0, size-i*2), VectorMath4(0,0.3,0.3,1));
-        DrawLine(VectorMath3(size-i*2, 0, size), VectorMath3(size-i*2, 0, -size), VectorMath4(0,0.3,0.3,1));
+        DrawLine(VectorMath3(size, 0, size-i*2), VectorMath3(-size, 0, size-i*2), color);
+        DrawLine(VectorMath3(size-i*2, 0, size), VectorMath3(size-i*2, 0, -size), color);
     } 
 }
 
@@ -104,5 +104,10 @@ void DrawSquare(float size, VectorMath3 pos, VectorMath4 color){
 void DrawLine(VectorMath3 start, VectorMath3 end, VectorMath4 color){
     PushVertex(&lineBuffer, Vertex{start, color});
     PushVertex(&lineBuffer, Vertex{end, color});
+}
+// Create a line with math line and color
+void DrawLine(MathLine line, VectorMath4 color){
+    PushVertex(&lineBuffer, Vertex{line.GetStart(), VectorMath4(1,0,0,1)});
+    PushVertex(&lineBuffer, Vertex{line.GetEnd(), VectorMath4(0,1,0,1)});
 }
 }

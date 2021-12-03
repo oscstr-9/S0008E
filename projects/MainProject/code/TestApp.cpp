@@ -18,10 +18,42 @@ namespace Example
 	ExampleApp::~ExampleApp()
 	{/*so cool*/}
 
+	void ExampleApp::ShootFromMousePos(){
+		double x = 0, y = 0;
+		glfwGetCursorPos(window->window, &x, &y);
+
+		x /= width;
+		y /= height;
+		x = (x*2)-1;
+		y = (y*2)-1;
+		y*=-1;
+		VectorMath4 p = VectorMath4(x,y,1,1);
+		MatrixMath invVPMatrix = camera.GetProjViewMatrix().InverseMatrix();
+		p = invVPMatrix.VectorMultiplication(VectorMath4(p,1));
+		VectorMath4 cameraWorldPos = camera.GetViewMatrix().InverseMatrix().VectorMultiplication(VectorMath4(0,0,0,1));
+		cameraWorldPos.w = 1;
+		p = p + cameraWorldPos;
+		//VectorMath4 forwardVector = (camera.GetProjViewMatrix() * camera.GetRotMat().InverseMatrix()).VectorMultiplication(VectorMath4(camera.GetVectorZ(),1));
+		//mouseWorldPos = mouseWorldPos + VectorMath4(cameraPos,1);
+
+		VectorMath4 direction = p - cameraWorldPos;
+		cameraWorldPos.PrintVector();
+		mathLines.push_back(MathLine(cameraPos, cameraPos + VectorMath3(direction)*100));
+	}
+
 	bool ExampleApp::Open()
 	{
 		App::Open();
 		this->window = new Display::Window;
+		// Adding mouse functionality			
+		window->SetMousePressFunction([this](int32 button, int32 action, int32 mods){
+			if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+				ShootFromMousePos();
+			}
+			if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
+				mathLines.clear();
+			}
+		});
 		window->SetKeyPressFunction([this](int32 keycode, int32, int32 action, int32)
 			{
 			// Adding keyboard functionality
@@ -67,20 +99,19 @@ namespace Example
 					mvmtSpeed -= 0.5;
 				}
 				break;
+			case GLFW_KEY_LEFT_ALT:
+				if(action == GLFW_PRESS)
+					freeMouse = !freeMouse;
 			default:
 				break;
 			}
 			});
-		// Adding mouse functionality
-		window->SetMouseMoveFunction([this](double x, double y) {
-			rotMat = RotateMatrix(((height / 2) - y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x)*-speed, VectorMath3(0,1,0));
-		});
 
 		if (this->window->Open())
 		{
-			//rotMat = 1;//RotateMatrix((M_PI/2), VectorMath3(1, 0, 0));
-
 			window->GetSize(width, height);
+			// set clear color (Background color)
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 			// Find and load shaders
 			shaders = std::make_shared<ShaderResource>();
@@ -102,7 +133,7 @@ namespace Example
 	void ExampleApp::Run()
 	{
  		// Create camera
-		ScreenCamera camera(90, width, height, 0.001, 100);
+		camera.Setup(90, width, height, 0.001, 100);
 		camera.SetPosition(cameraPos);
 
 		// Create light source
@@ -114,9 +145,14 @@ namespace Example
 		glDepthFunc(GL_LEQUAL);
 
 		shaders->setVec4(VectorMath4(1, 1, 1, 1), "colorVector");
+		double x = 0, y = 0;
 	
 		while (this->window->IsOpen())
 		{
+			if(freeMouse){
+				glfwGetCursorPos(window->window, &x, &y);
+				rotMat = RotateMatrix(((height/2)-y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x) * -speed, VectorMath3(0,1,0));
+			}
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this->window->Update();
 			
@@ -131,12 +167,12 @@ namespace Example
 			if (left)
 			{
 				VectorMath3 cameraX = camera.GetVectorX();
-				cameraPos = cameraPos - VectorMath3(cameraX.x,0, cameraX.z) * mvmtSpeed;
+				cameraPos = cameraPos - VectorMath3(cameraX.x, 0, cameraX.z) * mvmtSpeed;
 			}
 			else if (right)
 			{
 				VectorMath3 cameraX = camera.GetVectorX();
-				cameraPos = cameraPos + VectorMath3(cameraX.x,0, cameraX.z) * mvmtSpeed;
+				cameraPos = cameraPos + VectorMath3(cameraX.x, 0, cameraX.z) * mvmtSpeed;
 			}
 			if (up)
 			{
@@ -146,7 +182,6 @@ namespace Example
 			{
 				cameraPos = cameraPos - VectorMath3(0,1,0) * mvmtSpeed;
 			}
-						
 			// Update camera pos
 
 			camera.SetPosition(cameraPos);
@@ -156,7 +191,12 @@ namespace Example
 
 			// Rendering
 			if(debug){
-				Debug::CreateGrid(40);
+				Debug::CreateGrid(100, VectorMath4(0,0.3,0.3,1));
+				ShootFromMousePos();
+			}
+
+			for (int i = 0; i < mathLines.size(); i++){
+				Debug::DrawLine(mathLines[i], VectorMath4(1,0,0,1));
 			}
 
 			Light::bindLights(shaders, lights);

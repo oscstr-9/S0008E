@@ -7,6 +7,7 @@
 */
 //------------------------------------------------------------------------------
 #include "core/app.h"
+#include "core/MathLine.h"
 #include "render/ShaderResource.h"
 #include "render/window.h"
 #include "render/Lighting.h"
@@ -25,6 +26,8 @@ public:
 	ExampleApp();
 	// destructor
 	~ExampleApp();
+
+	void ShootFromMousePos();
 
 	// Bind multiple lights at once
 	void bindLights(std::vector<Lighting> lights);
@@ -54,17 +57,19 @@ private:
 	std::shared_ptr<TextureResource> objTexture;
 	std::shared_ptr<MeshResource> objMesh;
 
+	ScreenCamera camera;
 	// Transforms
-	VectorMath3 cameraPos = VectorMath3(-10, 5, 0);
+	VectorMath3 cameraPos = VectorMath3(0, 0, 0);
 	VectorMath3 cameraRotation = VectorMath3(0,0,0);
-	VectorMath4 forwardVector = VectorMath4(0,0,0);
 
 	MatrixMath posMat = Identity();
 	MatrixMath rotMat = Identity();
 
+	std::vector<MathLine> mathLines;
 	GraphicsNode gnodeObj;
 
 	// Debugging
 	bool debug = true;
+	bool freeMouse = false;
 };
 }

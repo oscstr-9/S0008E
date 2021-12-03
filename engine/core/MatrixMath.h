@@ -100,7 +100,7 @@ inline VectorMath4 MatrixMath::VectorMultiplication(VectorMath4 vectorA) {
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			tempVector[i] += (*this)[i][j] * vectorA[i];
+			tempVector[i] += (*this)[j][i] * vectorA[j];
 		}
 	}
 	return tempVector;
@@ -157,7 +157,7 @@ inline MatrixMath MatrixMath::InverseMatrix()
 	{
 		for (char j = 0; j < 4; j++)
 		{
-			m[k] = (*this)[j][i];
+			m[k] = (*this)[i][j];
 			k++;
 		}
 	}
@@ -302,6 +302,17 @@ inline MatrixMath MatrixMath::InverseMatrix()
 	if (det == 0)
 		return MatrixMath(VectorMath4(1,0,0,0), VectorMath4(0, 1, 0, 0), VectorMath4(0, 0, 1, 0), VectorMath4(0, 0, 0, 1));
 
+	det = 1.0 / det;
+
+	k = 0;
+    for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 4; j++)
+		{
+        tempMatrix[i][j] = tempMatrix[i][j] * det;
+		k++;
+		}
+	}
+	
 	return tempMatrix;
 }
 
@@ -324,7 +335,7 @@ inline void MatrixMath::PrintMatrix() {
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			std::cout << std::left << matrix[j].coords[i];
+			std::cout << std::left << matrix[j].coords[i] << "  ";
 		}
 		std::cout << std::endl;
 	}

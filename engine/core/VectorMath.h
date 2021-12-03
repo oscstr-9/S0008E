@@ -32,6 +32,68 @@ struct VectorMath2
 	void PrintVector();
 };
 
+struct VectorMath3
+{
+	union {
+		struct
+		{
+			float x;
+			float y;
+			float z;
+		};
+		float coords[3];
+	};
+
+	VectorMath3(float xIn, float yIn, float zIn);
+	VectorMath3(VectorMath2 xyIn, float zIn);
+	VectorMath3(struct VectorMath4 xyzIn);
+	VectorMath3();
+	float& operator[](int index);
+	float operator[](int index)const;
+	VectorMath3 operator+(VectorMath3 vectorA);
+	VectorMath3 operator-(VectorMath3 vectorA);
+	VectorMath3 operator*(float multiplier);
+	VectorMath3 operator-();
+	float Length();
+	void Normalize();
+	VectorMath3 NormalizeNew();
+	float DotProduct(VectorMath3 vectorA);
+	VectorMath3 CrossProduct(VectorMath3 vectorA);
+	void PrintVector();
+};
+
+
+struct VectorMath4
+{
+	union {
+		struct
+		{
+			float x;
+			float y;
+			float z;
+			float w;
+		};
+		float coords[4];
+	};
+
+	VectorMath4(float xIn, float yIn, float zIn, float wIn);
+	VectorMath4(float xIn, float yIn, float zIn);
+	VectorMath4(float wIn);
+	VectorMath4();
+	VectorMath4(VectorMath3 vector, float W);
+	float operator[](int index)const;
+	float& operator[](int index);
+	VectorMath4 operator+(VectorMath4 vectorA);
+	VectorMath4 operator-(VectorMath4 vectorA);
+	VectorMath4 operator*(float multiplier);
+	float Length();
+	void Normalize();
+	VectorMath4 NormalizeNew();
+	float DotProduct(VectorMath4 vectorA);
+	VectorMath4 CrossProduct(VectorMath4 vectorA);
+	void PrintVector();
+};
+
 // vector constructor for all values
 inline VectorMath2::VectorMath2(float xIn, float yIn)
 {
@@ -161,35 +223,6 @@ inline void VectorMath2::PrintVector() {
 
 //--------------------------------------------------------------------------------------\\
 
-struct VectorMath3
-{
-	union {
-		struct
-		{
-			float x;
-			float y;
-			float z;
-		};
-		float coords[3];
-	};
-
-	VectorMath3(float xIn, float yIn, float zIn);
-	VectorMath3(VectorMath2, float zIn);
-	VectorMath3();
-	float& operator[](int index);
-	float operator[](int index)const;
-	VectorMath3 operator+(VectorMath3 vectorA);
-	VectorMath3 operator-(VectorMath3 vectorA);
-	VectorMath3 operator*(float multiplier);
-	VectorMath3 operator-();
-	float Length();
-	void Normalize();
-	VectorMath3 NormalizeNew();
-	float DotProduct(VectorMath3 vectorA);
-	VectorMath3 CrossProduct(VectorMath3 vectorA);
-	void PrintVector();
-};
-
 // vector constructor for all values
 inline VectorMath3::VectorMath3(float xIn, float yIn, float zIn)
 {
@@ -202,6 +235,12 @@ inline VectorMath3::VectorMath3(VectorMath2 xyIn, float zIn){
 	x = xyIn.x;
 	y = xyIn.y;
 	z = zIn;
+}
+
+inline VectorMath3::VectorMath3(VectorMath4 xyzIn){
+	x = xyzIn.x;
+	y = xyzIn.y;
+	z = xyzIn.z;
 }
 
 // empty vector constructor
@@ -311,37 +350,6 @@ inline void VectorMath3::PrintVector() {
 }
 
 //--------------------------------------------------------------------------------------\\
-
-struct VectorMath4
-{
-	union {
-		struct
-		{
-			float x;
-			float y;
-			float z;
-			float w;
-		};
-		float coords[4];
-	};
-
-	VectorMath4(float xIn, float yIn, float zIn, float wIn);
-	VectorMath4(float xIn, float yIn, float zIn);
-	VectorMath4(float wIn);
-	VectorMath4();
-	VectorMath4(VectorMath3 vector, float W);
-	float operator[](int index)const;
-	float& operator[](int index);
-	VectorMath4 operator+(VectorMath4 vectorA);
-	VectorMath4 operator-(VectorMath4 vectorA);
-	VectorMath4 operator*(float multiplier);
-	float Length();
-	void Normalize();
-	VectorMath4 NormalizeNew();
-	float DotProduct(VectorMath4 vectorA);
-	VectorMath4 CrossProduct(VectorMath4 vectorA);
-	void PrintVector();
-};
 
 inline VectorMath4::VectorMath4(float xIn, float yIn, float zIn, float wIn) {
 	x = xIn;
