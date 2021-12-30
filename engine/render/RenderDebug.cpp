@@ -90,6 +90,35 @@ void CreateGrid(int size, VectorMath4 color){
 }
 
 // Create a square with set size and color
+void DrawSquare(float size, VectorMath3 pos, VectorMath3 normal, VectorMath4 color){
+    VectorMath3 rightVector;
+    if(normal.y != 1){
+        rightVector = normal.CrossProduct(VectorMath3(0,1,0));
+    }
+    else{
+        rightVector = normal.CrossProduct(VectorMath3(0,0,1));
+    }
+    rightVector.Normalize();
+
+    VectorMath3 upVector = normal.CrossProduct(rightVector);
+    upVector.Normalize();
+
+    VectorMath4 xVector = VectorMath4(rightVector.x,upVector.x,normal.x,0);
+    VectorMath4 yVector = VectorMath4(rightVector.y,upVector.y,normal.y,0);
+    VectorMath4 zVector = VectorMath4(rightVector.z,upVector.z,normal.z,0);
+    VectorMath4 wVector = VectorMath4(0,0,0,1);
+    MatrixMath transform = MatrixMath(xVector,yVector,zVector,wVector);
+
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(-0.5*size, -0.5 * size, 0, 1)), color});
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(0.5*size, -0.5 * size, 0, 1)), color});
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(0.5*size, 0.5 * size, 0, 1)), color});
+
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(-0.5*size, -0.5 * size, 0, 1)), color});
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(-0.5*size, 0.5 * size, 0, 1)), color});
+    PushVertex(&squareBuffer, Vertex{pos + transform.VectorMultiplication(VectorMath4(0.5*size, 0.5 * size, 0, 1)), color});
+}
+
+// Create a square with set size and color
 void DrawSquare(float size, VectorMath3 pos, VectorMath4 color){
     PushVertex(&squareBuffer, Vertex{pos + VectorMath3(-0.5*size, -0.5 * size, 0), color});
     PushVertex(&squareBuffer, Vertex{pos + VectorMath3(0.5*size, -0.5 * size, 0), color});
@@ -99,6 +128,7 @@ void DrawSquare(float size, VectorMath3 pos, VectorMath4 color){
     PushVertex(&squareBuffer, Vertex{pos + VectorMath3(-0.5*size, 0.5 * size, 0), color});
     PushVertex(&squareBuffer, Vertex{pos + VectorMath3(0.5*size, 0.5 * size, 0), color});
 }
+
 
 // Create a line with start and end positions
 void DrawLine(VectorMath3 start, VectorMath3 end, VectorMath4 color){

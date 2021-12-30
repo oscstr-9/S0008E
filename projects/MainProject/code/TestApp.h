@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/app.h"
 #include "core/MathLine.h"
+#include "core/MathPlane.h"
 #include "render/ShaderResource.h"
 #include "render/window.h"
 #include "render/Lighting.h"
@@ -59,13 +60,14 @@ private:
 
 	ScreenCamera camera;
 	// Transforms
-	VectorMath3 cameraPos = VectorMath3(0, 0, 0);
+	VectorMath3 cameraPos = VectorMath3(0, 5, 5);
 	VectorMath3 cameraRotation = VectorMath3(0,0,0);
 
 	MatrixMath posMat = Identity();
 	MatrixMath rotMat = Identity();
 
 	std::vector<MathLine> mathLines;
+	std::vector<MathPlane> planes;
 	GraphicsNode gnodeObj;
 
 	// Debugging

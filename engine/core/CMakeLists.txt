@@ -10,7 +10,9 @@ SET(files_core
 	MathLine.h
 	MathLine.cpp
 	MathPlane.h
-	MathPlane.cpp)
+	MathPlane.cpp
+	Quad.h
+	Quad.cpp)
 SOURCE_GROUP("core" FILES ${files_core})
 	
 SET(files_pch ../config.h ../config.cc)

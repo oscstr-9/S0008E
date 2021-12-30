@@ -7,6 +7,8 @@
 #include "config.h"
 #include "TestApp.h"
 #include "core/MatrixMath.h"
+#include "core/MathPlane.h"
+#include "core/Quad.h"
 #include "render/Camera.h"
 #include "render/RenderDebug.h"
 
@@ -33,12 +35,12 @@ namespace Example
 		VectorMath4 cameraWorldPos = camera.GetViewMatrix().InverseMatrix().VectorMultiplication(VectorMath4(0,0,0,1));
 		cameraWorldPos.w = 1;
 		p = p + cameraWorldPos;
-		//VectorMath4 forwardVector = (camera.GetProjViewMatrix() * camera.GetRotMat().InverseMatrix()).VectorMultiplication(VectorMath4(camera.GetVectorZ(),1));
-		//mouseWorldPos = mouseWorldPos + VectorMath4(cameraPos,1);
 
 		VectorMath4 direction = p - cameraWorldPos;
-		cameraWorldPos.PrintVector();
-		mathLines.push_back(MathLine(cameraPos, cameraPos + VectorMath3(direction)*100));
+		Mathline line = MathLine(cameraPos, cameraPos + VectorMath3(direction)*100);
+		mathLines.push_back(line);
+		line.Intersect(planes);
+
 	}
 
 	bool ExampleApp::Open()
@@ -146,10 +148,16 @@ namespace Example
 
 		shaders->setVec4(VectorMath4(1, 1, 1, 1), "colorVector");
 		double x = 0, y = 0;
+
+
+		// Create a plane with a rendered quad on top
+		MathPlane plane = MathPlane(VectorMath3(0,10,0), VectorMath3(0,1,1));
+		planes.push_back(plane);
+		Quad quad = Quad(plane, 10, VectorMath4(1,0,1,1));
 	
 		while (this->window->IsOpen())
 		{
-			if(freeMouse){
+			if(!freeMouse){
 				glfwGetCursorPos(window->window, &x, &y);
 				rotMat = RotateMatrix(((height/2)-y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x) * -speed, VectorMath3(0,1,0));
 			}
@@ -192,8 +200,13 @@ namespace Example
 			// Rendering
 			if(debug){
 				Debug::CreateGrid(100, VectorMath4(0,0.3,0.3,1));
-				ShootFromMousePos();
+				VectorMath3 point, normal;
+				quad.GetPlane().GetPlaneParts(point,normal);
+				Debug::DrawSquare(quad.GetSize(), point, normal, quad.GetColor());
+				//std::cout << quad.GetSize() << std::endl;
+				//normal.PrintVector();
 			}
+
 
 			for (int i = 0; i < mathLines.size(); i++){
 				Debug::DrawLine(mathLines[i], VectorMath4(1,0,0,1));

@@ -1,6 +1,6 @@
 #pragma once
 #include "MathLine.h"
-#include "MathPlane.h"
+
 
 MathLine::MathLine(VectorMath3 start, VectorMath3 end)
 {
@@ -13,8 +13,12 @@ MathLine::~MathLine()
     //hmm
 }
 
-VectorMath3 MathLine::Intersect(MathPlane plane){
-
+VectorMath3 MathLine::Intersect(std::vector<MathPlane> planes){
+    for (int i = 0; i < planes.size(); i++)
+    {
+        VectorMath3 point, normal;
+        planes[i].GetPlaneParts(point, normal);
+    }
 }
 
 VectorMath3 MathLine::GetStart(){

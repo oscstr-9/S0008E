@@ -335,7 +335,7 @@ inline VectorMath3 VectorMath3::CrossProduct(VectorMath3 vectorA) {
 	//y*z
 	temp[0] = (coords[1] * vectorA[2]) - (coords[2] * vectorA[1]);
 	//x*z
-	temp[1] = (coords[0] * vectorA[2]) - (coords[2] * vectorA[0]);
+	temp[1] = (coords[2] * vectorA[0]) - (coords[0] * vectorA[2]);
 	return temp;
 }
 
