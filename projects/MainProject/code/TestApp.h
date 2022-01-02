@@ -15,6 +15,8 @@
 #include "render/GraphicsNode.h"
 #include "render/MeshResource.h"
 #include "render/TextureResource.h"
+#include "core/PerlinNoise.h"
+
 #include <memory>
 #include <vector>
 
@@ -53,6 +55,13 @@ private:
 	float speed = 0.01;
 	float mvmtSpeed = 0.1;
 
+	// Perlin Noise options
+	int outputSize = 256;
+	float octaves = 1;
+	float fScalingBias = 2.0f;
+	int perlinMode = 1;
+
+
 	// Rendering
 	std::shared_ptr<ShaderResource> shaders;
 	std::shared_ptr<TextureResource> objTexture;
@@ -69,6 +78,8 @@ private:
 	std::vector<MathLine> mathLines;
 	std::vector<MathPlane> planes;
 	GraphicsNode gnodeObj;
+	PerlinNoise genNoise = PerlinNoise(outputSize);
+
 
 	// Debugging
 	bool debug = true;

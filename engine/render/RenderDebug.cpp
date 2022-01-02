@@ -2,7 +2,7 @@
 #include "render/ShaderResource.h"
 #include <GL/glew.h>
 
-#define MAX_SIZE 8192*4
+#define MAX_SIZE 65536*8
 
 namespace Debug{
     struct Vertex{

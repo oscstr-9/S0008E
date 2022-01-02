@@ -37,7 +37,7 @@ namespace Example
 		p = p + cameraWorldPos;
 
 		VectorMath4 direction = p - cameraWorldPos;
-		Mathline line = MathLine(cameraPos, cameraPos + VectorMath3(direction)*100);
+		MathLine line = MathLine(cameraPos, cameraPos + VectorMath3(direction)*100);
 		mathLines.push_back(line);
 		line.Intersect(planes);
 
@@ -50,10 +50,19 @@ namespace Example
 		// Adding mouse functionality			
 		window->SetMousePressFunction([this](int32 button, int32 action, int32 mods){
 			if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
-				ShootFromMousePos();
+				//ShootFromMousePos();
+				octaves ++;
+				std::cout << octaves << std::endl;
 			}
 			if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
 				mathLines.clear();
+				if(perlinMode == 1){
+					genNoise.NewSeed1D();
+				}
+
+				else if(perlinMode == 2){
+					genNoise.NewSeed2D();
+				}
 			}
 		});
 		window->SetKeyPressFunction([this](int32 keycode, int32, int32 action, int32)
@@ -102,8 +111,31 @@ namespace Example
 				}
 				break;
 			case GLFW_KEY_LEFT_ALT:
-				if(action == GLFW_PRESS)
+				if(action == GLFW_PRESS){
 					freeMouse = !freeMouse;
+				}
+				break;
+			case GLFW_KEY_H:
+				if(action == GLFW_PRESS){
+					if(fScalingBias > 0.2f){
+						fScalingBias -= 0.2f;
+					}
+					else{
+						fScalingBias = 2.0f;
+					}
+					std::cout << fScalingBias << std::endl;
+				}
+				break;
+			case GLFW_KEY_1:
+				if(action == GLFW_PRESS){
+					perlinMode = 1;
+				}
+				break;
+			case GLFW_KEY_2:
+				if(action == GLFW_PRESS){
+					perlinMode = 2;
+				}
+				break;
 			default:
 				break;
 			}
@@ -154,7 +186,6 @@ namespace Example
 		MathPlane plane = MathPlane(VectorMath3(0,10,0), VectorMath3(0,1,1));
 		planes.push_back(plane);
 		Quad quad = Quad(plane, 10, VectorMath4(1,0,1,1));
-	
 		while (this->window->IsOpen())
 		{
 			if(!freeMouse){
@@ -216,6 +247,51 @@ namespace Example
 
 			gnodeObj.Draw();
 
+		if(octaves == 6){
+			octaves = 1;
+		}
+		if(perlinMode == 1){
+			genNoise.PerlinNoise1D(octaves, fScalingBias);
+			float *noise = genNoise.GetfPerlinNoise1D();
+			for (int x = 0; x < outputSize-1; x++)
+			{
+				float y = noise[x] * 10;
+				float y2 = noise[x+1] * 10;
+				Debug::DrawLine(VectorMath3(x/4,y,1), VectorMath3((x+1)/4, y2, 1), VectorMath4(0,1,0,1));
+			}
+		}
+
+		else if(perlinMode == 2){
+			genNoise.PerlinNoise2D(octaves, fScalingBias);
+			float *noise = genNoise.GetfPerlinNoise2D();
+			for (int x = 0; x < outputSize; x++)
+			{
+				for (int y = 0; y < outputSize; y++)
+				{
+					float color = noise[y * outputSize + x];
+					//Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(color,color,color,1));
+
+					if (color < 0.2){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(0,0,1,1));
+					}
+					else if (color < 0.4){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(0,1,1,1));
+					}
+					else if (color < 0.5){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(0.85,0.7,0.5,1));
+					}
+					else if (color < 0.6){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(0,1,0,1));
+					}
+					else if (color < 0.8){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(1,0.5,0.15,1));
+					}
+					else if (color < 1.0){
+						Debug::DrawSquare(0.25f,VectorMath3((float)x/4,(float)y/4,1), VectorMath3(0,0,1), VectorMath4(0.1,0.1,0.1,1));
+					}
+				}
+			}
+		}
 			Debug::Render(camera.GetProjViewMatrix());
 
 			this->window->SwapBuffers();
