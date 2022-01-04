@@ -38,7 +38,7 @@ void PerlinNoise::NewSeed2D(){
     }
 }
 void PerlinNoise::PerlinNoise1D(int nOctaves, float fScalingBias){
-    for (int x = 0; x < outputWidth; x++)
+    for (int x = 0; x < nOutputSize; x++)
     {  
         float fNoise = 0.0f;
         float fScale = 1.0f;

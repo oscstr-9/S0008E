@@ -245,7 +245,7 @@ namespace Example
 
 			Light::bindLights(shaders, lights);
 
-			gnodeObj.Draw();
+			//gnodeObj.Draw();
 
 		if(octaves == 6){
 			octaves = 1;
