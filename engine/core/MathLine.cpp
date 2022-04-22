@@ -13,11 +13,11 @@ MathLine::~MathLine()
     //hmm
 }
 
-VectorMath3 MathLine::Intersect(std::vector<MathPlane> planes){
+VectorMath3 MathLine::Intersect(std::vector<MathPlane> &planes){
     for (int i = 0; i < planes.size(); i++)
     {
         VectorMath3 point, normal;
-        planes[i].GetPlaneParts(point, normal);
+        planes[i].GetPlaneParts(&point, &normal);
     }
 }
 

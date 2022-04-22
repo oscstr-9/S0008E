@@ -1,4 +1,5 @@
 #version 430
+
 layout(location=0) in vec3 pos;
 layout(location=1) in vec4 color;
 layout(location=2) in vec2 texturesIn;
@@ -21,7 +22,5 @@ void main()
 	texturesOut = texturesIn;
 
 	fragPos = (posMatrix*vec4(pos,1)).xyz;
-	normalOut = mat3(transpose(inverse(posMatrix))) * normalIn;  
-
-
+	normalOut = mat3(transpose(inverse(posMatrix))) * normalIn;
 };

@@ -1,4 +1,5 @@
 #version 430
+
 layout(location=0) in vec4 Colors;
 layout(location=1) in vec2 texturesOut;
 layout(location=2) in vec3 fragPos;

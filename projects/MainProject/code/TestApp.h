@@ -15,7 +15,7 @@
 #include "render/GraphicsNode.h"
 #include "render/MeshResource.h"
 #include "render/TextureResource.h"
-#include "core/PerlinNoise.h"
+#include "render/gltfLoader.h"
 
 #include <memory>
 #include <vector>
@@ -30,8 +30,6 @@ public:
 	// destructor
 	~ExampleApp();
 
-	void ShootFromMousePos();
-
 	// Bind multiple lights at once
 	void bindLights(std::vector<Lighting> lights);
 
@@ -40,6 +38,8 @@ public:
 
 	// run app
 	void Run();
+
+	void MoveCamera(VectorMath3 &cameraPos);
 private:
 	// Display screen
 	Display::Window* window;
@@ -55,17 +55,9 @@ private:
 	float speed = 0.01;
 	float mvmtSpeed = 0.1;
 
-	// Perlin Noise options
-	int outputSize = 256;
-	float octaves = 1;
-	float fScalingBias = 2.0f;
-	int perlinMode = 1;
-
-
 	// Rendering
 	std::shared_ptr<ShaderResource> shaders;
-	std::shared_ptr<TextureResource> objTexture;
-	std::shared_ptr<MeshResource> objMesh;
+	std::vector<gltfInfo> gltfMesh;
 
 	ScreenCamera camera;
 	// Transforms
@@ -76,13 +68,8 @@ private:
 	MatrixMath rotMat = Identity();
 
 	std::vector<MathLine> mathLines;
-	std::vector<MathPlane> planes;
-	GraphicsNode gnodeObj;
-	PerlinNoise genNoise = PerlinNoise(outputSize);
-
 
 	// Debugging
 	bool debug = true;
-	bool freeMouse = false;
 };
 }

@@ -9,5 +9,5 @@ private:
 public:
     MathPlane(VectorMath3 point, VectorMath3 normal);
     ~MathPlane();
-    void GetPlaneParts(VectorMath3 &point, VectorMath3 &normal);
+    void GetPlaneParts(VectorMath3 *point, VectorMath3 *normal);
 };
