@@ -11,7 +11,7 @@ uniform vec3 lightPos;
 uniform float intensity;
 uniform vec3 viewPos;
 uniform float specIntensity;
-
+uniform vec4 colorInput;
 out vec4 Color;
 
 void main()
@@ -28,5 +28,5 @@ void main()
 	float spec = pow(max(dot(norm, halfwayDir), 0.0), 64);
 	vec3 specular = lightColor * spec;  
 
-	Color = texture(textureArray, texturesOut) *(vec4(0.3) + Colors*0.7) * vec4(ambient + diffuse + specular, 1.0);
+	Color = texture(textureArray, texturesOut) *(vec4(0.3) + Colors*0.7) * vec4(ambient + diffuse + specular, 1.0) * colorInput;
 };

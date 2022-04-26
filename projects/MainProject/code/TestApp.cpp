@@ -113,9 +113,10 @@ namespace Example
 			shaders->LoadShader("VertGLTFShader.glsl","FragGLTFShader.glsl");
 
 			// Find object textures
+			gltfModel = GraphicsNode(gltfMesh, shaders, MatrixMath::TranslationMatrix(VectorMath3(0,5,0)) * RotateMatrix(M_PI/2, VectorMath3(1,0,0)));
+
 
 			// Load object textures
-			LoadGLTF("mokey", gltfMesh);
 			// Object meshes
 			return true;
 		}
@@ -124,6 +125,10 @@ namespace Example
 
 	void ExampleApp::Run()
 	{
+		GLuint vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
  		// Create camera
 		camera.Setup(90, width, height, 0.001, 100);
 		camera.SetPosition(cameraPos);
@@ -160,15 +165,11 @@ namespace Example
 				VectorMath3 point, normal;
 			}
 
-
-			for (int i = 0; i < mathLines.size(); i++){
-				Debug::DrawLine(mathLines[i], VectorMath4(1,0,0,1));
-			}
-
 			Light::bindLights(shaders, lights);
 
-			RenderGLTF(gltfMesh);
 			Debug::Render(camera.GetProjViewMatrix());
+
+			gltfModel.Draw();
 
 			this->window->SwapBuffers();
 		}

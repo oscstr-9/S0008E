@@ -1,5 +1,6 @@
 #include "config.h"
 #include "GraphicsNode.h"
+#include <vector>
 
 GraphicsNode::GraphicsNode()
 {/*cool*/}
@@ -10,17 +11,43 @@ GraphicsNode::GraphicsNode(std::shared_ptr <MeshResource> meshIn, std::shared_pt
 	texture = textureIn;
 	shader = shaderIn;
 	transform = transformIn;
+    isGltf = false;
+}
+
+GraphicsNode::GraphicsNode(std::vector<gltfInfo> modelIn, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn)
+{
+    model = modelIn;
+    LoadGLTF("mokey" ,model);
+	shader = shaderIn;
+	transform = transformIn;
+    isGltf = true;
 }
 
 GraphicsNode::~GraphicsNode()
 {/*cool*/}
 
-void GraphicsNode::Draw()
+void GraphicsNode::Draw(){
+    if(this->isGltf){
+        DrawGLTF();
+    }
+    else{
+        DrawOBJ();
+    }
+}
+
+void GraphicsNode::DrawOBJ()
 {
     texture->bindTexture();
     shader->BindShader();
     shader->setMat4(transform, "posMatrix");
     mesh->Render();
+}
+
+void GraphicsNode::DrawGLTF()
+{
+    shader->BindShader();
+    shader->setMat4(transform, "posMatrix");
+    RenderGLTF(model, shader);
 }
 
 

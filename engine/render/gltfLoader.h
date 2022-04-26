@@ -3,12 +3,15 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <memory>
+#include "render/ShaderResource.h"
 
 
 struct gltfInfo{
-    GLuint gpuBuffer;
+    GLuint vertBuffer;
     GLuint indexBuffer;
     GLuint texture;
+    VectorMath4 color;
     int componentType;
     int posByteStride;
     int posByteLength;
@@ -19,4 +22,4 @@ struct gltfInfo{
 };
 
 void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info);
-void RenderGLTF(std::vector<gltfInfo>& info);
+void RenderGLTF(std::vector<gltfInfo>& info,  std::shared_ptr <ShaderResource> shader);
