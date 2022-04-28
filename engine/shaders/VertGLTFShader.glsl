@@ -4,11 +4,13 @@ layout(location=0) in vec3 pos;
 layout(location=1) in vec4 color;
 layout(location=2) in vec2 texturesIn;
 layout(location=3) in vec3 normalIn;
+layout(location=3) in vec4 tangentsIn;
 
 out vec4 Colors;
 out vec2 texturesOut;
 out vec3 fragPos;
 out vec3 normalOut;
+out vec4 tangentsOut;
 
 uniform mat4 posMatrix;
 uniform mat4 projectionViewMatrix;
@@ -20,6 +22,7 @@ void main()
 	gl_Position = projectionViewMatrix*posMatrix*vec4(pos, 1);
 	Colors = colorVector*color;
 	texturesOut = texturesIn;
+	tangentsOut = tangentsIn;
 
 	fragPos = (posMatrix*vec4(pos,1)).xyz;
 	normalOut = mat3(transpose(inverse(posMatrix))) * normalIn;

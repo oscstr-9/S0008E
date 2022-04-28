@@ -113,7 +113,7 @@ namespace Example
 			shaders->LoadShader("VertGLTFShader.glsl","FragGLTFShader.glsl");
 
 			// Find object textures
-			gltfModel = GraphicsNode(gltfMesh, shaders, MatrixMath::TranslationMatrix(VectorMath3(0,5,0)) * RotateMatrix(M_PI/2, VectorMath3(1,0,0)));
+			gltfModel = GraphicsNode(gltfMesh, "wooden_crate_tangents.glb",  shaders, MatrixMath::TranslationMatrix(VectorMath3(0,5,0)) * RotateMatrix(M_PI/2, VectorMath3(1,0,0)));
 
 
 			// Load object textures
@@ -134,19 +134,18 @@ namespace Example
 		camera.SetPosition(cameraPos);
 
 		// Create light source
-		std::vector<Lighting> lights;
-		lights.reserve(1);
-		Lighting light(VectorMath3(0, 0, 5), VectorMath3(1, 1, 1), 5);
-		lights.push_back(light);
+		Lighting light(VectorMath3(0, 0, 5), VectorMath3(1, 1, 1), 0.1);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
 		shaders->setVec4(VectorMath4(1, 1, 1, 1), "colorVector");
 		double x = 0, y = 0;
-
+		float i = 0;
 		while (this->window->IsOpen())
 		{
+			i+=0.01f;
+			light.setPos(VectorMath3(cos(i), 5/5, sin(i)) * 5);
 			glfwGetCursorPos(window->window, &x, &y);
 			rotMat = RotateMatrix(((height/2)-y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x) * -speed, VectorMath3(0,1,0));
 
@@ -162,10 +161,11 @@ namespace Example
 			// Rendering
 			if(debug){
 				Debug::CreateGrid(100, VectorMath4(0,0.3,0.3,1));
+				Debug::DrawSquare(2,VectorMath3(cos(i), 5/5, sin(i))*5, VectorMath4(0,1,0,1));
 				VectorMath3 point, normal;
 			}
 
-			Light::bindLights(shaders, lights);
+			Light::bindLight(shaders, light, cameraPos);
 
 			Debug::Render(camera.GetProjViewMatrix());
 

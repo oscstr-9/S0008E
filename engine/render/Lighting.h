@@ -23,6 +23,6 @@ public:
 };
 
 namespace Light{
-	void bindLight(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos);
+	void bindLight(std::shared_ptr<ShaderResource> shader, Lighting light, VectorMath3 cameraPos);
 	void bindLights(std::shared_ptr<ShaderResource> shader, std::vector<Lighting> lights);
 };

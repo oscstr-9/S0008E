@@ -14,10 +14,10 @@ GraphicsNode::GraphicsNode(std::shared_ptr <MeshResource> meshIn, std::shared_pt
     isGltf = false;
 }
 
-GraphicsNode::GraphicsNode(std::vector<gltfInfo> modelIn, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn)
+GraphicsNode::GraphicsNode(std::vector<gltfInfo> modelIn, std::string fileName, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn)
 {
     model = modelIn;
-    LoadGLTF("mokey" ,model);
+    LoadGLTF(fileName ,model);
 	shader = shaderIn;
 	transform = transformIn;
     isGltf = true;

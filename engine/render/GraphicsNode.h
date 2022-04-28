@@ -21,7 +21,7 @@ class GraphicsNode
 public:
     GraphicsNode();
 	GraphicsNode(std::shared_ptr <MeshResource> meshIn, std::shared_ptr <TextureResource> textureIn, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn);
-	GraphicsNode(std::vector<gltfInfo> model, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn);
+	GraphicsNode(std::vector<gltfInfo> model, std::string fileName, std::shared_ptr <ShaderResource> shaderIn, MatrixMath transformIn);
 	~GraphicsNode();
 
     void Draw();

@@ -19,6 +19,7 @@ public:
 	void setVec3(VectorMath3 vec3, std::string uniform);
 	void setVec4(VectorMath4 vec4, std::string uniform);
 	void setMat4(MatrixMath mat4, std::string uniform);
+	void setSampler(int index, std::string uniform);
 	void setFloat(float floatIn, std::string uniform);
 	void setLights(VectorMath3 lightColor[16], VectorMath3 lightPos[16], float intensity[16], int amountOfLights);
 };
