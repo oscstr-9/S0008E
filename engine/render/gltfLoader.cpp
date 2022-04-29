@@ -114,21 +114,32 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             unsigned char* img;
             auto colors = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorFactor;      
             auto baseColorTexture = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorTexture;
-            if (baseColorTexture.index != -1){
-                std::cout << "has texture" << std::endl;
-                Image texImg = model.images[baseColorTexture.index];
-                auto imgBuffer = model.bufferViews[texImg.bufferView];
-                img = stbi_load_from_memory(model.buffers[imgBuffer.buffer].data.data() + imgBuffer.byteOffset, imgBuffer.byteLength, &width, &height, &channels, 0);
 
+            // If texture exist
+            if(baseColorTexture.index != -1){
+                Image texImg = model.images[baseColorTexture.index];
+
+                // If texture is embedded
+                if(std::strcmp(texImg.uri.c_str(), "") == 0){
+                    auto imgBuffer = model.bufferViews[texImg.bufferView];
+                    img = stbi_load_from_memory(model.buffers[imgBuffer.buffer].data.data() + imgBuffer.byteOffset, imgBuffer.byteLength, &width, &height, &channels, 0);
+                }
+                // If texture is not embedded
+                else{
+                    std::cout << texImg.uri.c_str() << std::endl;
+                    img = stbi_load(("textures/GLTFs/"+texImg.uri).c_str(), &width, &height, &channels, 0);
+                }
+                // Texture loaded incorrectly
                 if(img == NULL){
-                    std::cout << stbi_failure_reason() << std::endl;
+                    std::cout << "Error occured when loading texture: " << stbi_failure_reason() << std::endl;
                 }
             }
+            // There is no texture
             else{
 	            img = stbi_load("textures/default.png", &width, &height, &channels, 0);
-                	if (img == NULL) {
-                        std::cout << "No default image found!" << std::endl;
-	                }
+                if (img == NULL) {
+                    std::cout << "No default image found!" << std::endl;
+                }
             }
 
             // Load texture map into texture variable
@@ -162,8 +173,10 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             }
             else{
                 std::cout << "No normal map found" << std::endl;
-	            img = stbi_load("textures/default.png", &width, &height, &channels, 0);
-                std::cout << "No default normal map found!" << std::endl;
+                img = stbi_load("textures/default.png", &width, &height, &channels, 0);
+                if (img == NULL) {
+                    std::cout << "No default normal map was found!" << std::endl;
+                }
             }
             // Load normal map into nomalMap variable
             glGenTextures(1, &normalMap);
@@ -188,6 +201,7 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             glBufferSubData(GL_ARRAY_BUFFER, 0, posByteLength, (void*)(model.buffers[posBuffer].data.data()+posByteOffset+posAccessor.byteOffset));
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength, texByteLength, (void*)(model.buffers[texBuffer].data.data()+texByteOffset+texAccessor.byteOffset));
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength, normalByteLength, (void*)(model.buffers[normalBuffer].data.data()+normalByteOffset+normalAccessor.byteOffset));
+
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength+normalByteLength, tangentByteLength, (void*)(model.buffers[tangentBuffer].data.data()+tangentByteOffset+tangentAccessor.byteOffset));
 
 	        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesByteLength, (void*)(model.buffers[indicesByteBuffer].data.data()+indicesByteOffset+indices.byteOffset), GL_STATIC_DRAW);
@@ -198,7 +212,7 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                            texture,
                            normalMap,
                            VectorMath4{colors[0],colors[1],colors[2],colors[3]},
-                           model.accessors[model.meshes[i].primitives[j].indices].componentType,
+                           indices.componentType,
                            posByteStride,
                            posByteLength,
                            texByteStride,
