@@ -34,5 +34,4 @@ void main()
 	vec3 specular = lightColor * spec;
 
 	Color = texture(textureArray, texturesOut)  * vec4(ambient + diffuse + specular, 1.0) * colorInput;
-	//Color = texture(normalArray, texturesOut) * tangentsOut;
 };

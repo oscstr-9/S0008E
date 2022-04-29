@@ -127,7 +127,7 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             else{
 	            img = stbi_load("textures/default.png", &width, &height, &channels, 0);
                 	if (img == NULL) {
-                        std::cout << "Image loaded incorrectly" << std::endl;
+                        std::cout << "No default image found!" << std::endl;
 	                }
             }
 
@@ -159,27 +159,28 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                 if(img == NULL){
                     std::cout << stbi_failure_reason() << std::endl;
                 }
-                else{
-                    // Load normal map into nomalMap variable
-                    glGenTextures(1, &normalMap);
-                    glBindTexture(GL_TEXTURE_2D, normalMap);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-                    if (channels == 3)
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-                    else if (channels == 4)
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-
-                    glGenerateMipmap(GL_TEXTURE_2D);
-
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    stbi_image_free(img);
-                }
             }
             else{
                 std::cout << "No normal map found" << std::endl;
+	            img = stbi_load("textures/default.png", &width, &height, &channels, 0);
+                std::cout << "No default normal map found!" << std::endl;
             }
+            // Load normal map into nomalMap variable
+            glGenTextures(1, &normalMap);
+            glBindTexture(GL_TEXTURE_2D, normalMap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            if (channels == 3)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+            else if (channels == 4)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+            stbi_image_free(img);
+
 
             
 
