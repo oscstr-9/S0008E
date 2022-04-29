@@ -178,6 +178,22 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                     std::cout << "No default normal map was found!" << std::endl;
                 }
             }
+            // Load normal map into nomalMap variable
+            glGenTextures(1, &normalMap);
+            glBindTexture(GL_TEXTURE_2D, normalMap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            if (channels == 3)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+            else if (channels == 4)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+            stbi_image_free(img);
+
 
             // Load normal map into nomalMap variable
             glGenTextures(1, &normalMap);
