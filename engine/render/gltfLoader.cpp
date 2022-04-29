@@ -115,7 +115,6 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             auto colors = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorFactor;      
             auto baseColorTexture = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorTexture;
             if (baseColorTexture.index != -1){
-                std::cout << "has texture" << std::endl;
                 Image texImg = model.images[baseColorTexture.index];
                 auto imgBuffer = model.bufferViews[texImg.bufferView];
                 img = stbi_load_from_memory(model.buffers[imgBuffer.buffer].data.data() + imgBuffer.byteOffset, imgBuffer.byteLength, &width, &height, &channels, 0);
@@ -159,8 +158,16 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                 if(img == NULL){
                     std::cout << stbi_failure_reason() << std::endl;
                 }
-                else{
-                    // Load normal map into nomalMap variable
+            }
+            else{
+                std::cout << "No normal map found" << std::endl;
+                img = stbi_load("textures/default.png", &width, &height, &channels, 0);
+                if (img == NULL) {
+                    std::cout << "No default normal map was found!" << std::endl;
+                }
+            }
+
+             // Load normal map into nomalMap variable
                     glGenTextures(1, &normalMap);
                     glBindTexture(GL_TEXTURE_2D, normalMap);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -175,12 +182,6 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
 
                     glBindTexture(GL_TEXTURE_2D, 0);
                     stbi_image_free(img);
-                }
-            }
-            else{
-                std::cout << "No normal map found" << std::endl;
-            }
-
             
 
             // Bind the correct normal map
