@@ -181,10 +181,6 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             glBindTexture(GL_TEXTURE_2D, 0);
             stbi_image_free(img);
 
-
-            
-
-            // Bind the correct normal map
             
             // Bind texture to gpu with syntax below, example in textureResource. add texture gluint to GLTFinfo struct for easy access in render function.
 
