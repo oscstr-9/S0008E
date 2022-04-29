@@ -114,20 +114,32 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
             unsigned char* img;
             auto colors = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorFactor;      
             auto baseColorTexture = model.materials[materialBufferIndex].pbrMetallicRoughness.baseColorTexture;
-            if (baseColorTexture.index != -1){
-                Image texImg = model.images[baseColorTexture.index];
-                auto imgBuffer = model.bufferViews[texImg.bufferView];
-                img = stbi_load_from_memory(model.buffers[imgBuffer.buffer].data.data() + imgBuffer.byteOffset, imgBuffer.byteLength, &width, &height, &channels, 0);
 
+            // If texture exist
+            if(baseColorTexture.index != -1){
+                Image texImg = model.images[baseColorTexture.index];
+
+                // If texture is embedded
+                if(std::strcmp(texImg.uri.c_str(), "") == 0){
+                    auto imgBuffer = model.bufferViews[texImg.bufferView];
+                    img = stbi_load_from_memory(model.buffers[imgBuffer.buffer].data.data() + imgBuffer.byteOffset, imgBuffer.byteLength, &width, &height, &channels, 0);
+                }
+                // If texture is not embedded
+                else{
+                    std::cout << texImg.uri.c_str() << std::endl;
+                    img = stbi_load(("textures/GLTFs/"+texImg.uri).c_str(), &width, &height, &channels, 0);
+                }
+                // Texture loaded incorrectly
                 if(img == NULL){
-                    std::cout << stbi_failure_reason() << std::endl;
+                    std::cout << "Error occured when loading texture: " << stbi_failure_reason() << std::endl;
                 }
             }
+            // There is no texture
             else{
 	            img = stbi_load("textures/default.png", &width, &height, &channels, 0);
-                	if (img == NULL) {
-                        std::cout << "Image loaded incorrectly" << std::endl;
-	                }
+                if (img == NULL) {
+                    std::cout << "No default image found!" << std::endl;
+                }
             }
 
             // Load texture map into texture variable
@@ -167,21 +179,21 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                 }
             }
 
-             // Load normal map into nomalMap variable
-                    glGenTextures(1, &normalMap);
-                    glBindTexture(GL_TEXTURE_2D, normalMap);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            // Load normal map into nomalMap variable
+            glGenTextures(1, &normalMap);
+            glBindTexture(GL_TEXTURE_2D, normalMap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-                    if (channels == 3)
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-                    else if (channels == 4)
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+            if (channels == 3)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+            else if (channels == 4)
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
 
-                    glGenerateMipmap(GL_TEXTURE_2D);
+            glGenerateMipmap(GL_TEXTURE_2D);
 
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    stbi_image_free(img);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            stbi_image_free(img);
             
 
             // Bind the correct normal map
@@ -191,7 +203,10 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
 	        glBufferData(GL_ARRAY_BUFFER, posByteLength+normalByteLength+texByteLength+tangentByteLength, NULL, GL_STATIC_DRAW);
             glBufferSubData(GL_ARRAY_BUFFER, 0, posByteLength, (void*)(model.buffers[posBuffer].data.data()+posByteOffset+posAccessor.byteOffset));
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength, texByteLength, (void*)(model.buffers[texBuffer].data.data()+texByteOffset+texAccessor.byteOffset));
+            //problem
+            std::cout << "texlen" << normalByteLength<<std::endl;
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength, normalByteLength, (void*)(model.buffers[normalBuffer].data.data()+normalByteOffset+normalAccessor.byteOffset));
+
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength+normalByteLength, tangentByteLength, (void*)(model.buffers[tangentBuffer].data.data()+tangentByteOffset+tangentAccessor.byteOffset));
 
 	        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesByteLength, (void*)(model.buffers[indicesByteBuffer].data.data()+indicesByteOffset+indices.byteOffset), GL_STATIC_DRAW);
@@ -202,7 +217,7 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                            texture,
                            normalMap,
                            VectorMath4{colors[0],colors[1],colors[2],colors[3]},
-                           model.accessors[model.meshes[i].primitives[j].indices].componentType,
+                           indices.componentType,
                            posByteStride,
                            posByteLength,
                            texByteStride,

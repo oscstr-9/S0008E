@@ -20,7 +20,8 @@ void main()
 {	
 	vec3 bitangent = cross(normalOut, tangentsOut.xyz)*tangentsOut.w;
 	mat3 tbn = mat3(tangentsOut.xyz, normalOut, bitangent);
-	vec3 normal = tbn * texture(normalArray, texturesOut).xyz;
+	//vec3 normal = tbn * texture(normalArray, texturesOut).xyz;
+	vec3 normal = normalize(normalOut);
 
 	vec3 viewDir = normalize(fragPos - viewPos);
 	vec3 lightDir = normalize(lightPos - fragPos);
@@ -34,5 +35,4 @@ void main()
 	vec3 specular = lightColor * spec;
 
 	Color = texture(textureArray, texturesOut)  * vec4(ambient + diffuse + specular, 1.0) * colorInput;
-	//Color = texture(normalArray, texturesOut) * tangentsOut;
 };
