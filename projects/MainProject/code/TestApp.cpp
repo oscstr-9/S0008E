@@ -129,6 +129,19 @@ namespace Example
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
+		GLuint colorFBO;
+		glGenFramebuffers(1, &colorFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
+		
+		GLuint normalFBO;
+		glGenFramebuffers(1, &normalFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
+
+		GLuint specularFBO;
+		glGenFramebuffers(1, &specularFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
+
+
  		// Create camera
 		camera.Setup(90, width, height, 0.001, 100);
 		camera.SetPosition(cameraPos);

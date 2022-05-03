@@ -41,15 +41,9 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
         return;
     }
 
-   
-    
-    int numOfMeshes = model.meshes.size();
-
-    for (int i = 0; i < numOfMeshes; i++)
+    for (int i = 0; i < model.meshes.size(); i++)
     {
-        int numOfPrimitives = model.meshes[i].primitives.size();
-
-        for (int j = 0; j < numOfPrimitives; j++)
+        for (int j = 0; j < model.meshes[i].primitives.size(); j++)
         {
             
             // Buffers
@@ -193,38 +187,14 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
 
             glBindTexture(GL_TEXTURE_2D, 0);
             stbi_image_free(img);
-
-
-            // Load normal map into nomalMap variable
-            glGenTextures(1, &normalMap);
-            glBindTexture(GL_TEXTURE_2D, normalMap);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-            if (channels == 3)
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-            else if (channels == 4)
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-            stbi_image_free(img);
-            
-
-            // Bind the correct normal map
             
             // Bind texture to gpu with syntax below, example in textureResource. add texture gluint to GLTFinfo struct for easy access in render function.
 
 	        glBufferData(GL_ARRAY_BUFFER, posByteLength+normalByteLength+texByteLength+tangentByteLength, NULL, GL_STATIC_DRAW);
             glBufferSubData(GL_ARRAY_BUFFER, 0, posByteLength, (void*)(model.buffers[posBuffer].data.data()+posByteOffset+posAccessor.byteOffset));
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength, texByteLength, (void*)(model.buffers[texBuffer].data.data()+texByteOffset+texAccessor.byteOffset));
-            //problem
-            std::cout << "texlen" << normalByteLength<<std::endl;
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength, normalByteLength, (void*)(model.buffers[normalBuffer].data.data()+normalByteOffset+normalAccessor.byteOffset));
-
 	        glBufferSubData(GL_ARRAY_BUFFER, posByteLength+texByteLength+normalByteLength, tangentByteLength, (void*)(model.buffers[tangentBuffer].data.data()+tangentByteOffset+tangentAccessor.byteOffset));
-
 	        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesByteLength, (void*)(model.buffers[indicesByteBuffer].data.data()+indicesByteOffset+indices.byteOffset), GL_STATIC_DRAW);
 
             info.push_back(gltfInfo{
