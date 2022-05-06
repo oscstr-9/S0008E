@@ -219,12 +219,12 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
 
 void RenderGLTF(std::vector<gltfInfo>& info, std::shared_ptr <ShaderResource> shaders){
     
-    // Itterates through all meshes and all primitives in each mesh to render the model
-    for(int i = 0; i < info.size(); i++)
-    {
         shaders->setSampler(0, "textureArray");
         shaders->setSampler(1, "normalArray");
 
+    // Itterates through all meshes and all primitives in each mesh to render the model
+    for(int i = 0; i < info.size(); i++)
+    {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, info[i].texture);
 
@@ -251,6 +251,8 @@ void RenderGLTF(std::vector<gltfInfo>& info, std::shared_ptr <ShaderResource> sh
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 

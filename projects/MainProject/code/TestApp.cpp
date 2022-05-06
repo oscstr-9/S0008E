@@ -129,17 +129,33 @@ namespace Example
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
-		GLuint colorFBO;
-		glGenFramebuffers(1, &colorFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
-		
-		GLuint normalFBO;
-		glGenFramebuffers(1, &normalFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
+		GLuint deferredFBO;
+		glGenFramebuffers(1, &deferredFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 	deferredFBO);
 
-		GLuint specularFBO;
-		glGenFramebuffers(1, &specularFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, 	colorFBO);
+		GLuint colorTexture;
+		glGenTextures(1, &colorTexture);
+		glBindTexture(GL_TEXTURE_2D, colorTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, width,height, 0, GL_RGB, GL_UNSIGNED_INT, /*void* pixels*/);
+		glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+		GLuint normalTexture;
+		glGenTextures(1, &normalTexture);
+		glBindTexture(GL_TEXTURE_2D, normalTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, width,height, 0, GL_RGB, GL_UNSIGNED_INT, /*void* pixels*/);
+		glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
+
+		GLuint worldPosTexture;
+		glGenTextures(1, &worldPosTexture);
+		glBindTexture(GL_TEXTURE_2D, worldPosTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, width,height, 0, GL_RGB, GL_UNSIGNED_INT, /*void* pixels*/);
+		glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, worldPosTexture, 0);
+
+		GLuint depthTexture;
+		glGenTextures(1, &depthTexture);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, width,height, 0, GL_RGB, GL_UNSIGNED_INT, /*void* pixels*/);
+		glFramebufferTexture2D(deferredFBO, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 
 
  		// Create camera
