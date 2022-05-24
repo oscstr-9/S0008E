@@ -15,9 +15,10 @@ uniform vec3 viewPos;
 uniform float specIntensity;
 uniform vec4 colorInput;
 
-layout(location=0) out vec4 Color;
+layout(location=0) out vec4 color;
 layout(location=1) out vec3 normal;
-layout(location=2) out vec3 fragPos;
+layout(location=2) out vec3 worldPos;
+layout(location=3) out vec3 specular;
 
 
 void main()
@@ -25,17 +26,18 @@ void main()
 	vec3 bitangent = cross(normalOut, tangentsOut.xyz)*tangentsOut.w;
 	mat3 tbn = mat3(tangentsOut.xyz, normalOut, bitangent);
 	vec3 normal = tbn * texture(normalArray, texturesOut).xyz;
+	worldPos = fragPos;
 
-	// vec3 viewDir = normalize(fragPos - viewPos);
-	// vec3 lightDir = normalize(lightPos - fragPos);
-	// vec3 halfwayDir = normalize(lightDir + viewDir);
-	// vec3 ambient = intensity * lightColor;
+	vec3 viewDir = normalize(fragPos - viewPos);
+	vec3 lightDir = normalize(lightPos - fragPos);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	vec3 ambient = intensity * lightColor;
 
-	// float diff = max(dot(normal, lightDir), 0.0);
-	// vec3 diffuse = diff * lightColor;
+	float diff = max(dot(normal, lightDir), 0.0);
+	vec3 diffuse = diff * lightColor;
 
-	// float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-	// vec3 specular = lightColor * spec;
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+	vec3 specular = lightColor * spec;
 
-	Color = texture(textureArray, texturesOut) * colorInput;
+	color = texture(textureArray, texturesOut) * colorInput;
 };
