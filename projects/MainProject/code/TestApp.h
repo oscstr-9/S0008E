@@ -57,6 +57,7 @@ private:
 
 	// Rendering
 	std::shared_ptr<ShaderResource> shaders;
+	std::shared_ptr<ShaderResource> lightShaders;
 	std::vector<gltfInfo> gltfMesh;
 	GraphicsNode gltfModel;
 

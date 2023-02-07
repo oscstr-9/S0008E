@@ -1,3 +1,4 @@
+#include "config.h"
 #include "Quad.h"
 
 Quad::Quad(MathPlane plane, float size, VectorMath4 color){

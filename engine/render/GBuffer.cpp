@@ -5,6 +5,10 @@
 #include "GBuffer.h"
 #include <cstdio>
 
+GBuffer::GBuffer(){}
+GBuffer::~GBuffer(){}
+
+GLuint pixel_texture;
 
 bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
 {
@@ -40,6 +44,42 @@ bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
 
     // restore default FBO
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    char pixel[4] = {255,255,0,255};
+    glGenTextures(1, &pixel_texture);
+    glBindTexture(GL_TEXTURE_2D, pixel_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, pixel);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
 
     return true;
+}
+
+void GBuffer::Bind() {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+}
+void GBuffer::BindTexturesToShader(std::shared_ptr<ShaderResource> shader) {
+    shader->setSampler(0, "color");
+    shader->setSampler(1, "normal");
+    shader->setSampler(2, "worldPos");
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, pixel_texture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_NORMAL]);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_POSITION]);
+}
+
+void GBuffer::Unbind() {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void GBuffer::Clear() {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+    GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+    glDrawBuffers(GBUFFER_NUM_TEXTURES, DrawBuffers);
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

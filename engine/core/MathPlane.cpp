@@ -1,4 +1,5 @@
 #pragma once
+#include "config.h"
 #include "MathPlane.h"
 #include "VectorMath.h"
 #include "render/Vertex.h"

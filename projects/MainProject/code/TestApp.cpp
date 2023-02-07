@@ -6,6 +6,7 @@
 #include <cstring>
 #include "config.h"
 #include "TestApp.h"
+#include "render/GBuffer.h"
 #include "core/MatrixMath.h"
 #include "render/Camera.h"
 #include "render/RenderDebug.h"
@@ -111,6 +112,8 @@ namespace Example
 			// Find and load shaders
 			shaders = std::make_shared<ShaderResource>();
 			shaders->LoadShader("VertGLTFShader.glsl","FragGLTFShader.glsl");
+			lightShaders = std::make_shared<ShaderResource>();
+			lightShaders->LoadShader("PointLightVertexShader.glsl","PointLightFragShader.glsl");
 
 			// Find object textures
 			gltfModel = GraphicsNode(gltfMesh, "wooden_crate_tangents.glb",  shaders, MatrixMath::TranslationMatrix(VectorMath3(0,5,0)) * RotateMatrix(M_PI/2, VectorMath3(1,0,0)));
@@ -128,35 +131,9 @@ namespace Example
 		GLuint vao;
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
-		// GLuint deferredFBO;
-		// glGenFramebuffers(1, &deferredFBO);
-		// glBindFramebuffer(GL_FRAMEBUFFER, 	deferredFBO);
-
-		// GLuint colorTexture;
-		// glGenTextures(1, &colorTexture);
-		// glBindTexture(GL_TEXTURE_2D, colorTexture);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)colorTexture);
-		// glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
-
-		// GLuint normalTexture;
-		// glGenTextures(1, &normalTexture);
-		// glBindTexture(GL_TEXTURE_2D, normalTexture);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, (void*)normalTexture);
-		// glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
-
-		// GLuint worldPosTexture;
-		// glGenTextures(1, &worldPosTexture);
-		// glBindTexture(GL_TEXTURE_2D, worldPosTexture);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)worldPosTexture);
-		// glFramebufferTexture2D(deferredFBO, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, worldPosTexture, 0);
-
-		// GLuint depthTexture;
-		// glGenTextures(1, &depthTexture);
-		// glBindTexture(GL_TEXTURE_2D, depthTexture);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)depthTexture);
-		// glFramebufferTexture2D(deferredFBO, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
-
+		GBuffer gbuffer;
+		gbuffer.Init(width, height);
+		std::cout << glGetError() << std::endl;
 
  		// Create camera
 		camera.Setup(90, width, height, 0.001, 100);
@@ -174,31 +151,36 @@ namespace Example
 		while (this->window->IsOpen())
 		{
 			i+=0.01f;
-			light.setPos(VectorMath3(cos(i), 5/5, sin(i)) * 5);
+			//light.setPos(VectorMath3(cos(i), 5/5, sin(i)) * 5);
 			glfwGetCursorPos(window->window, &x, &y);
 			rotMat = RotateMatrix(((height/2)-y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x) * -speed, VectorMath3(0,1,0));
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			gbuffer.Clear();
 			this->window->Update();
 
 			// Update camera pos
 			MoveCamera(cameraPos);
 			camera.SetPosition(cameraPos);
 			camera.SetRotMat(rotMat);
+			gbuffer.Bind();
 			shaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
-
-			// Rendering
-			if(debug){
-				Debug::CreateGrid(100, VectorMath4(0,0.3,0.3,1));
-				Debug::DrawSquare(2,VectorMath3(cos(i), 5/5, sin(i))*5, VectorMath4(0,1,0,1));
-				VectorMath3 point, normal;
-			}
-
-			Light::bindLight(shaders, light, cameraPos);
-
-			Debug::Render(camera.GetProjViewMatrix());
+			lightShaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
 
 			gltfModel.Draw();
+			gbuffer.Unbind();
+			gbuffer.BindTexturesToShader(lightShaders);
+
+			light.Render(lightShaders, cameraPos, (float)width, (float)height);
+
+			// Rendering
+			if (debug) {
+				Debug::CreateGrid(100, VectorMath4(0, 0.3, 0.3, 1));
+				//Debug::DrawSquare(2, VectorMath3(cos(i), 5 / 5, sin(i)) * 5, VectorMath4(0, 1, 0, 1));
+				VectorMath3 point, normal;
+			}
+			gltfModel.Draw();
+			Debug::Render(camera.GetProjViewMatrix());
 
 			this->window->SwapBuffers();
 		}

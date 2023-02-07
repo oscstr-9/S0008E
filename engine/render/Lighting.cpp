@@ -7,6 +7,7 @@ Lighting::Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn)
 	pos = posIn;
 	color = colorIn;
 	intensity = intensityIn;
+	cube = MeshResource::Cube(intensity * 100);
 }
 
 Lighting::~Lighting()
@@ -32,6 +33,23 @@ VectorMath3 Lighting::getPos(){
 }
 float Lighting::getIntensity(){
 	return intensity;
+}
+void Lighting::Render(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos, float width, float height) {
+	shader->BindShader();
+	shader->setMat4(MatrixMath::TranslationMatrix(pos), "posMatrix");
+
+	shader->setFloat(width, "width");
+	shader->setFloat(height, "height");
+
+	shader->setVec3(pos, "lightPos");
+
+	shader->setVec3(color, "lightColor");
+	shader->setFloat(intensity, "intensity");
+
+	shader->setVec3(cameraPos, "viewPos");
+	shader->setFloat(1, "specIntensity");
+
+	cube->Render();
 }
 
 namespace Light{

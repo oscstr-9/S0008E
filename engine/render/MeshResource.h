@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <GL/glew.h>
 #include <memory>
 

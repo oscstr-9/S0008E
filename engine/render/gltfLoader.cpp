@@ -202,7 +202,7 @@ void LoadGLTF(std::string fileName, std::vector<gltfInfo>& info){
                            indexBuffer,
                            texture,
                            normalMap,
-                           VectorMath4{colors[0],colors[1],colors[2],colors[3]},
+                           VectorMath4{(float)colors[0],(float)colors[1],(float)colors[2],(float)colors[3]},
                            indices.componentType,
                            posByteStride,
                            posByteLength,

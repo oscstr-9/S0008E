@@ -1,3 +1,4 @@
+#include "config.h"
 #include "RenderDebug.h"
 #include "render/ShaderResource.h"
 #include <GL/glew.h>

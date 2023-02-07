@@ -1,3 +1,4 @@
+#include "config.h"
 #include <random>
 #include <iostream>
 #include "PerlinNoise.h"

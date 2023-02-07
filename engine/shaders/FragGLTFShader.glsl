@@ -15,7 +15,7 @@ uniform vec3 viewPos;
 uniform float specIntensity;
 uniform vec4 colorInput;
 
-layout(location=0) out vec4 color;
+layout(location=0) out vec3 color;
 layout(location=1) out vec3 normal;
 layout(location=2) out vec3 worldPos;
 layout(location=3) out vec3 specular;
@@ -24,8 +24,10 @@ layout(location=3) out vec3 specular;
 void main()
 {	
 	vec3 bitangent = cross(normalOut, tangentsOut.xyz)*tangentsOut.w;
-	mat3 tbn = mat3(tangentsOut.xyz, normalOut, bitangent);
-	vec3 normal = tbn * texture(normalArray, texturesOut).xyz;
+	mat3 tbn = mat3(tangentsOut.xyz, bitangent, normalOut);
+	//vec3 normal = tbn * texture(normalArray, texturesOut).xyz;
+	normal = tbn * normalize((texture(normalArray, texturesOut).xyz * 2 -1));
+
 	worldPos = fragPos;
 
 	vec3 viewDir = normalize(fragPos - viewPos);
@@ -39,5 +41,7 @@ void main()
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
 	vec3 specular = lightColor * spec;
 
-	color = texture(textureArray, texturesOut) * colorInput;
+	color = (texture(textureArray, texturesOut) * colorInput).xyz;
+	//color = texture(textureArray, texturesOut)  * vec4(ambient + diffuse + specular, 1.0) * colorInput;
+
 };

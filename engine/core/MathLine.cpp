@@ -1,4 +1,5 @@
 #pragma once
+#include "config.h"
 #include "MathLine.h"
 
 
@@ -19,6 +20,7 @@ VectorMath3 MathLine::Intersect(std::vector<MathPlane> &planes){
         VectorMath3 point, normal;
         planes[i].GetPlaneParts(&point, &normal);
     }
+    return VectorMath3{ 0,0,0 };
 }
 
 VectorMath3 MathLine::GetStart(){
