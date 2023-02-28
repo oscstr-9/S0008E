@@ -48,6 +48,17 @@ void MeshResource::Render() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+std::shared_ptr<MeshResource> MeshResource::DirLightQuad() {
+	Vertex vertices[] = {
+		Vertex(VectorMath3(-1,-1,0),VectorMath4(0, 0, 0, 1), VectorMath2(1.f / 3.f, 0), VectorMath3(0, 0, 0)),
+		Vertex(VectorMath3(1,-1,0),	VectorMath4(0, 0, 0, 1), VectorMath2(2.f / 3.f, 0), VectorMath3(0, 0, 0)),
+		Vertex(VectorMath3(1,1,0),	VectorMath4(0, 0, 0, 1), VectorMath2(2.f / 3.f, 1), VectorMath3(0, 0, 0)),
+		Vertex(VectorMath3(-1,1,0), VectorMath4(0, 0, 0, 1), VectorMath2(1.f / 3.f, 1), VectorMath3(0, 0, 0))};
+
+	unsigned int indices[] = { 3,0,1,1,2,3 };		//Front
+
+	return std::make_shared<MeshResource>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
+}
 
 std::shared_ptr<MeshResource> MeshResource::Cube(float size) {
 
@@ -101,7 +112,7 @@ std::shared_ptr<MeshResource> MeshResource::Cube(float size) {
 	return std::make_shared<MeshResource>(vertices, indices, sizeof(vertices)/sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
 }
 
-std::shared_ptr<MeshResource> MeshResource::LoadObj(std::string fileName)
+std::shared_ptr<MeshResource> MeshResource::LoadObj(std::string fileName, float size)
 {
 	FILE* myfile = fopen(("textures/OBJs/" + fileName + ".obj").c_str(), "r");
 	std::vector<VectorMath3> vC; // Vertex Coords
@@ -171,9 +182,9 @@ std::shared_ptr<MeshResource> MeshResource::LoadObj(std::string fileName)
 				sscanf(z, "%d/ %d/ %d/", &indexList[2][0], &indexList[2][1], &indexList[2][2]);
 
 				//		           Vertex(VectorMath3(pos),	      VectorMath4(color),  VectorMath2(Textures),  VectorMath3(normal))
-				vertices.push_back(Vertex(vC[(indexList[0][0]) - 1], VectorMath4(1, 1, 1, 1), vT[(indexList[0][1]) - 1], vN[(indexList[0][2]) - 1]));
-				vertices.push_back(Vertex(vC[(indexList[1][0]) - 1], VectorMath4(1, 1, 1, 1), vT[(indexList[1][1]) - 1], vN[(indexList[1][2]) - 1]));
-				vertices.push_back(Vertex(vC[(indexList[2][0]) - 1], VectorMath4(1, 1, 1, 1), vT[(indexList[2][1]) - 1], vN[(indexList[2][2]) - 1]));
+				vertices.push_back(Vertex(vC[(indexList[0][0]) - 1] * size, VectorMath4(1, 1, 1, 1), vT[(indexList[0][1]) - 1], vN[(indexList[0][2]) - 1]));
+				vertices.push_back(Vertex(vC[(indexList[1][0]) - 1] * size, VectorMath4(1, 1, 1, 1), vT[(indexList[1][1]) - 1], vN[(indexList[1][2]) - 1]));
+				vertices.push_back(Vertex(vC[(indexList[2][0]) - 1] * size, VectorMath4(1, 1, 1, 1), vT[(indexList[2][1]) - 1], vN[(indexList[2][2]) - 1]));
 
 				indices.push_back(numOfVertices);
 				indices.push_back(numOfVertices + 1);

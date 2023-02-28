@@ -57,9 +57,11 @@ private:
 
 	// Rendering
 	std::shared_ptr<ShaderResource> shaders;
-	std::shared_ptr<ShaderResource> lightShaders;
+	std::shared_ptr<ShaderResource> pointLightShaders;
+	std::shared_ptr<ShaderResource> directionalLightShaders;
 	std::vector<gltfInfo> gltfMesh;
 	GraphicsNode gltfModel;
+	std::vector<GraphicsNode> objectArray;
 
 	ScreenCamera camera;
 	// Transforms

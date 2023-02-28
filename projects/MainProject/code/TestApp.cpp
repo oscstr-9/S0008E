@@ -3,6 +3,9 @@
 // (C) 2015-2020 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 //#include <stb_image.h>
+#define AMOUNT_OF_LIGHTS 10
+#define AMOUNT_OF_OBJECTS 10
+
 #include <cstring>
 #include "config.h"
 #include "TestApp.h"
@@ -107,20 +110,39 @@ namespace Example
 		if (this->window->Open())
 		{
 			window->GetSize(width, height);
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 			// Find and load shaders
 			shaders = std::make_shared<ShaderResource>();
 			shaders->LoadShader("VertGLTFShader.glsl","FragGLTFShader.glsl");
-			lightShaders = std::make_shared<ShaderResource>();
-			lightShaders->LoadShader("PointLightVertexShader.glsl","PointLightFragShader.glsl");
+			pointLightShaders = std::make_shared<ShaderResource>();
+			pointLightShaders->LoadShader("PointLightVertexShader.glsl","PointLightFragShader.glsl");
+			directionalLightShaders = std::make_shared<ShaderResource>();
+			directionalLightShaders->LoadShader("DirectionalLightVertexShader.glsl","DirectionalLightFragShader.glsl");
 
-			// Find object textures
-			gltfModel = GraphicsNode(gltfMesh, "wooden_crate_tangents.glb",  shaders, MatrixMath::TranslationMatrix(VectorMath3(0,5,0)) * RotateMatrix(M_PI/2, VectorMath3(1,0,0)));
+			// randomize what objects should be rendered
+			for (int i = 0; i < AMOUNT_OF_OBJECTS; i++)
+			{
+				switch (rand() % 4)
+				{
+				case 0:
+					gltfModel = GraphicsNode(gltfMesh, "wooden_crate_tangents.glb", shaders, MatrixMath::TranslationMatrix(VectorMath3((rand() % 40) - 20, (rand() % 40) - 20, (rand() % 40) - 20)));
+					break;
+				case 1:
+					gltfModel = GraphicsNode(gltfMesh, "mokey.gltf", shaders, MatrixMath::TranslationMatrix(VectorMath3((rand() % 40) - 20, (rand() % 40) - 20, (rand() % 40) - 20)) * RotateMatrix(M_PI / 2, VectorMath3(1, 0, 0)));
+					break;
+				case 2:
+					gltfModel = GraphicsNode(gltfMesh, "hacha.glb", shaders, MatrixMath::TranslationMatrix(VectorMath3((rand() % 40) - 20, (rand() % 40) - 20, (rand() % 40) - 20)));
+					break;
+				case 3:
+					gltfModel = GraphicsNode(gltfMesh, "capybara_low_poly.glb", shaders, MatrixMath::TranslationMatrix(VectorMath3((rand() % 40) - 20, (rand() % 40) - 20, (rand() % 40) - 20)));
+					break;
+				default:
+					break;
+				}
 
+				objectArray.push_back(gltfModel);
+			}
 
-			// Load object textures
-			// Object meshes
 			return true;
 		}
 		return false;
@@ -139,19 +161,33 @@ namespace Example
 		camera.Setup(90, width, height, 0.001, 100);
 		camera.SetPosition(cameraPos);
 
-		// Create light source
-		Lighting light(VectorMath3(0, 0, 5), VectorMath3(1, 1, 1), 0.1);
+		// Create light sources
+		std::vector <Lighting> pointLights;
+		for (int i = 0; i < AMOUNT_OF_LIGHTS; i++)
+		{
+
+			Lighting pointLight(VectorMath3((rand() % 50)-25, (rand() % 40) - 20, (rand() % 40) - 20), VectorMath3(1, 1, 1), 0.1, MeshResource::LoadObj("icosphere", 10));
+			pointLights.push_back(pointLight);
+		}
+		Lighting directionalLight(VectorMath3(0, 1000, 50), VectorMath3(1, 1, 1), 0.001, MeshResource::DirLightQuad());
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
 		shaders->setVec4(VectorMath4(1, 1, 1, 1), "colorVector");
 		double x = 0, y = 0;
-		float i = 0;
+		float lightMove = 0;
+		VectorMath3 lightPos = VectorMath3(0,0,0);
 		while (this->window->IsOpen())
 		{
-			i+=0.01f;
-			//light.setPos(VectorMath3(cos(i), 5/5, sin(i)) * 5);
+			// move light sources
+			lightMove += 0.001f;
+			for (int i = 0; i < AMOUNT_OF_LIGHTS; i++)
+			{
+				VectorMath3 pointLightOriginPos = pointLights[i].getOriginPos();
+				pointLights[i].setPos(VectorMath3(pointLightOriginPos.x * cos(lightMove), pointLightOriginPos.y, pointLightOriginPos.z * sin(lightMove)));
+			}
+
 			glfwGetCursorPos(window->window, &x, &y);
 			rotMat = RotateMatrix(((height/2)-y) * -speed, VectorMath3(1, 0, 0)) * RotateMatrix(((width/2)-x) * -speed, VectorMath3(0,1,0));
 
@@ -159,27 +195,53 @@ namespace Example
 			gbuffer.Clear();
 			this->window->Update();
 
+			glClearColor(0.1, 0.1, 0.1, 1);
+
 			// Update camera pos
 			MoveCamera(cameraPos);
 			camera.SetPosition(cameraPos);
 			camera.SetRotMat(rotMat);
 			gbuffer.Bind();
 			shaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
-			lightShaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
+			pointLightShaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
+			directionalLightShaders->setMat4(camera.GetProjViewMatrix(), "projectionViewMatrix");
 
-			gltfModel.Draw();
+			//gltfModel.Draw();
+			// draw objects
+			for (int i = 0; i < objectArray.size(); i++)
+			{
+				objectArray[i].Draw();
+			}
+
 			gbuffer.Unbind();
-			gbuffer.BindTexturesToShader(lightShaders);
+			gbuffer.BindTexturesToShader(pointLightShaders);
+			gbuffer.BindTexturesToShader(directionalLightShaders);
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE,GL_ONE);
+			glBlendEquation(GL_FUNC_ADD);
+			glEnable(GL_CULL_FACE);
+			directionalLight.RenderDirLight(directionalLightShaders, cameraPos, (float)width, (float)height, VectorMath3(0.5,1,0.25));
+			glCullFace(GL_FRONT);
+			for (int i = 0; i < AMOUNT_OF_LIGHTS; i++)
+			{
+				pointLights[i].Render(pointLightShaders, cameraPos, (float)width, (float)height);
+			}
+			glDisable(GL_BLEND);
+			glCullFace(GL_BACK);
 
-			light.Render(lightShaders, cameraPos, (float)width, (float)height);
+			
+			glEnable(GL_DEPTH_TEST);
 
-			// Rendering
+			// Debug Rendering
 			if (debug) {
 				Debug::CreateGrid(100, VectorMath4(0, 0.3, 0.3, 1));
-				//Debug::DrawSquare(2, VectorMath3(cos(i), 5 / 5, sin(i)) * 5, VectorMath4(0, 1, 0, 1));
+				for (int i = 0; i < AMOUNT_OF_LIGHTS; i++)
+				{
+					Debug::DrawSquare(1, pointLights[i].getPos(), VectorMath4(0, 1, 0, 1));
+				}
 				VectorMath3 point, normal;
 			}
-			gltfModel.Draw();
 			Debug::Render(camera.GetProjViewMatrix());
 
 			this->window->SwapBuffers();

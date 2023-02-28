@@ -16,7 +16,8 @@ public:
 	MeshResource(MeshResource& mesh);
 	MeshResource();
 	static std::shared_ptr<MeshResource> Cube(float size);
-	static std::shared_ptr<MeshResource> LoadObj(std::string);
+	static std::shared_ptr<MeshResource> DirLightQuad();
+	static std::shared_ptr<MeshResource> LoadObj(std::string, float size);
 	void Render();
 	void Destroy();
 

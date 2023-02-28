@@ -1,7 +1,5 @@
 #version 430
 
-layout(location=0) in vec3 fragPos;
-
 out vec3 finalOutputColor;
 
 uniform sampler2D color;
@@ -32,7 +30,9 @@ void main()
 	float spec = pow(max(dot(texture(normal, normalizedFragCoord).xyz, halfwayDir), 0.0), 64);
 	vec3 specular = lightColor * spec;
 
-	//finalOutputColor = vec3(0,normalizedFragCoord);
-	finalOutputColor = (texture(color, normalizedFragCoord).xyz);
-	// * vec4(ambient + diffuse + specular, 1.0)).xyz;
+	vec3 toLight = lightPos - texture(worldPos, normalizedFragCoord).xyz;
+	float d = length(toLight);
+	float attenuation = clamp(10.0 / d, 0.0, 1.0);
+
+	finalOutputColor = (texture(color, normalizedFragCoord) * (attenuation * vec4(ambient + diffuse + specular, 1.0))).xyz;
 }

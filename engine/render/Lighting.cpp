@@ -2,12 +2,13 @@
 #include "Lighting.h"
 #include "ShaderResource.h"
 
-Lighting::Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn)
+Lighting::Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn, std::shared_ptr<MeshResource> meshIn)
 {
 	pos = posIn;
+	originPos = posIn;
 	color = colorIn;
 	intensity = intensityIn;
-	cube = MeshResource::Cube(intensity * 100);
+	mesh = meshIn;
 }
 
 Lighting::~Lighting()
@@ -31,6 +32,9 @@ VectorMath3 Lighting::getColor(){
 VectorMath3 Lighting::getPos(){
 	return pos;
 }
+VectorMath3 Lighting::getOriginPos(){
+	return originPos;
+}
 float Lighting::getIntensity(){
 	return intensity;
 }
@@ -42,6 +46,7 @@ void Lighting::Render(std::shared_ptr<ShaderResource> shader, VectorMath3 camera
 	shader->setFloat(height, "height");
 
 	shader->setVec3(pos, "lightPos");
+	//shader->setVec3(lightDir, "lightDir");
 
 	shader->setVec3(color, "lightColor");
 	shader->setFloat(intensity, "intensity");
@@ -49,7 +54,25 @@ void Lighting::Render(std::shared_ptr<ShaderResource> shader, VectorMath3 camera
 	shader->setVec3(cameraPos, "viewPos");
 	shader->setFloat(1, "specIntensity");
 
-	cube->Render();
+	mesh->Render();
+}
+
+void Lighting::RenderDirLight(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos, float width, float height, VectorMath3 lightDir) {
+	shader->BindShader();
+	shader->setMat4(MatrixMath::TranslationMatrix(pos), "posMatrix");
+
+	shader->setFloat(width, "width");
+	shader->setFloat(height, "height");
+
+	shader->setVec3(lightDir, "lightDir");
+
+	shader->setVec3(color, "lightColor");
+	shader->setFloat(intensity, "intensity");
+
+	shader->setVec3(cameraPos, "viewPos");
+	shader->setFloat(1, "specIntensity");
+
+	mesh->Render();
 }
 
 namespace Light{

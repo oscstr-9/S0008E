@@ -8,12 +8,13 @@
 class Lighting
 {
 	VectorMath3 pos;
+	VectorMath3 originPos;
 	VectorMath3 color;
 	float intensity;
-	std::shared_ptr<MeshResource> cube;
+	std::shared_ptr<MeshResource> mesh;
 
 public:
-	Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn);
+	Lighting(VectorMath3 posIn, VectorMath3 colorIn, float intensityIn, std::shared_ptr<MeshResource> meshIn);
 	~Lighting();
 	void setIntensity(float intensityIn);
 	void setPos(VectorMath3 posIn);
@@ -21,8 +22,10 @@ public:
 
 	VectorMath3 getColor();
 	VectorMath3 getPos();
+	VectorMath3 getOriginPos();
 	float getIntensity();
 	void Render(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos, float width, float height);
+	void RenderDirLight(std::shared_ptr<ShaderResource> shader, VectorMath3 cameraPos, float width, float height, VectorMath3 lightDir);
 };
 
 namespace Light{

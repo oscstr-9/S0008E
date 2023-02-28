@@ -31,4 +31,7 @@ private:
     GLuint m_fbo;
     GLuint m_textures[GBUFFER_NUM_TEXTURES];
     GLuint m_depthTexture;
+
+    float width;
+    float height;
 };

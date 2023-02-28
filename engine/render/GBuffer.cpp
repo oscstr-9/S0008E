@@ -8,10 +8,10 @@
 GBuffer::GBuffer(){}
 GBuffer::~GBuffer(){}
 
-GLuint pixel_texture;
-
 bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
 {
+    width = WindowWidth;
+    height = WindowHeight;
     // Create the FBO
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
@@ -23,12 +23,14 @@ bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
     for (unsigned int i = 0 ; i < GBUFFER_NUM_TEXTURES ; i++) {
        glBindTexture(GL_TEXTURE_2D, m_textures[i]);
        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, WindowWidth, WindowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_textures[i], 0);
     }
 
     // depth
     glBindTexture(GL_TEXTURE_2D, m_depthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
                   NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
 
@@ -44,12 +46,6 @@ bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
 
     // restore default FBO
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    char pixel[4] = {255,255,0,255};
-    glGenTextures(1, &pixel_texture);
-    glBindTexture(GL_TEXTURE_2D, pixel_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, pixel);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
 
     return true;
 }
@@ -58,12 +54,16 @@ void GBuffer::Bind() {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 }
 void GBuffer::BindTexturesToShader(std::shared_ptr<ShaderResource> shader) {
+    glBlitNamedFramebuffer(m_fbo, 0, 0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
     shader->setSampler(0, "color");
     shader->setSampler(1, "normal");
     shader->setSampler(2, "worldPos");
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, pixel_texture);
+    glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_COLOR]);
+
+    //glBindTexture(GL_TEXTURE_2D, pixel_texture);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_NORMAL]);
